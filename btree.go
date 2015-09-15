@@ -6,7 +6,7 @@ import (
 
 // Item represents a single object in the tree.
 type Item interface {
-	// Compare current item with given param
+	// check wether the current item is less then given param
 	Less(other Item) bool
 }
 
