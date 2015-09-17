@@ -21,15 +21,19 @@ func printNode(n *node, level int) {
 		items = append(items, fmt.Sprintf("%v", v))
 	}
 
-	fmt.Printf("level %d: %s\n", level, strings.Join(items, "--"))
+	fmt.Printf("%s%s", strings.Repeat(" ", 4), strings.Join(items, "--"))
 
-	level++
-	for _, v := range n.children {
-		printNode(v, level)
+	if len(n.children) > 0 {
+		fmt.Println()
+		level++
+		for _, v := range n.children {
+			printNode(v, level)
+		}
 	}
+
 }
 
-func ExamplePrint() {
+func ExampleInsert() {
 	btree := New(2)
 	btree.Insert(item(1))
 	btree.Insert(item(2))
@@ -40,8 +44,6 @@ func ExamplePrint() {
 	btree.Insert(item(9))
 
 	print(btree)
-	// Output: level 0: 2--4
-	// level 1: 1
-	// level 1: 3
-	// level 1: 5--8--9
+	// Output: 2--4
+	//     1    3    5--8--9
 }
