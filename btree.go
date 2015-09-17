@@ -18,7 +18,7 @@ func (s items) find(item Item) (index int, found bool) {
 	})
 
 	if i > 0 && !s[i-1].Less(item) {
-		return i, true
+		return i - 1, true
 	}
 
 	return i, false
@@ -131,6 +131,24 @@ func (b *BTree) min() int {
 
 func (b *BTree) max() int {
 	return b.degree*2 - 1
+}
+
+func (n *node) get(key Item) Item {
+	i, found := n.items.find(key)
+	if found {
+		return n.items[i]
+	} else if len(n.children) > 0 {
+		return n.children[i].get(key)
+	}
+	return nil
+}
+
+func (b *BTree) Get(key Item) Item {
+	if b.root == nil {
+		return nil
+	}
+
+	return b.root.get(key)
 }
 
 func (b *BTree) Insert(item Item) bool {

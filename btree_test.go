@@ -3,6 +3,7 @@ package btree
 import (
 	"fmt"
 	"strings"
+	"testing"
 )
 
 type item int
@@ -31,6 +32,35 @@ func printNode(n *node, level int) {
 		}
 	}
 
+}
+func TestNotGet(t *testing.T) {
+	btree := New(2)
+	btree.Insert(item(1))
+	btree.Insert(item(2))
+	btree.Insert(item(3))
+	btree.Insert(item(4))
+	btree.Insert(item(5))
+	btree.Insert(item(8))
+	btree.Insert(item(9))
+
+	if btree.Get(item(7)) != nil {
+		t.Fatalf("expected is nil, actual is %v", btree.Get(item(7)))
+	}
+}
+
+func TestGet(t *testing.T) {
+	btree := New(2)
+	btree.Insert(item(1))
+	btree.Insert(item(2))
+	btree.Insert(item(3))
+	btree.Insert(item(4))
+	btree.Insert(item(5))
+	btree.Insert(item(8))
+	btree.Insert(item(9))
+
+	if btree.Get(item(8)) != item(8) {
+		t.Fatalf("expected is 5, actual is %v", btree.Get(item(7)))
+	}
 }
 
 func ExampleInsert() {
