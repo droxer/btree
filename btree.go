@@ -1,7 +1,10 @@
 package btree
 
 import (
+	"fmt"
+	"io"
 	"sort"
+	"strings"
 )
 
 // Item represents a single object in the tree.
@@ -143,14 +146,6 @@ func (n *node) get(key Item) Item {
 	return nil
 }
 
-func (b *BTree) Get(key Item) Item {
-	if b.root == nil {
-		return nil
-	}
-
-	return b.root.get(key)
-}
-
 func (b *BTree) Insert(item Item) bool {
 	if item == nil {
 		panic("it not allowed to add nil item.")
@@ -170,4 +165,37 @@ func (b *BTree) Insert(item Item) bool {
 
 	b.root.insert(item)
 	return true
+}
+
+func (b *BTree) Get(key Item) Item {
+	if b.root == nil {
+		return nil
+	}
+
+	return b.root.get(key)
+}
+
+func (b *BTree) Delete(key Item) bool {
+	return false
+}
+
+func (b *BTree) Print(w io.Writer) {
+	b.root.print(w, 0)
+}
+
+func (n *node) print(w io.Writer, level int) {
+	var items []string
+	for _, v := range n.items {
+		items = append(items, fmt.Sprintf("%v", v))
+	}
+
+	fmt.Fprintf(w, "%s%s", strings.Repeat(" ", 4), strings.Join(items, "--"))
+
+	if len(n.children) > 0 {
+		fmt.Fprintln(w)
+		level++
+		for _, v := range n.children {
+			v.print(w, level)
+		}
+	}
 }

@@ -1,79 +1,75 @@
-package btree
+package btree_test
 
 import (
-	"fmt"
-	"strings"
+	"github.com/droxer/btree"
+	"io"
+	"os"
 	"testing"
 )
 
 type item int
 
-func (i item) Less(other Item) bool {
+func (i item) Less(other btree.Item) bool {
 	return i < other.(item)
 }
 
-func print(b *BTree) {
-	printNode(b.root, 0)
-}
-
-func printNode(n *node, level int) {
-	var items []string
-	for _, v := range n.items {
-		items = append(items, fmt.Sprintf("%v", v))
-	}
-
-	fmt.Printf("%s%s", strings.Repeat(" ", 4), strings.Join(items, "--"))
-
-	if len(n.children) > 0 {
-		fmt.Println()
-		level++
-		for _, v := range n.children {
-			printNode(v, level)
-		}
-	}
-
-}
 func TestNotGet(t *testing.T) {
-	btree := New(2)
-	btree.Insert(item(1))
-	btree.Insert(item(2))
-	btree.Insert(item(3))
-	btree.Insert(item(4))
-	btree.Insert(item(5))
-	btree.Insert(item(8))
-	btree.Insert(item(9))
+	bt := btree.New(2)
+	bt.Insert(item(1))
+	bt.Insert(item(2))
+	bt.Insert(item(3))
+	bt.Insert(item(4))
+	bt.Insert(item(5))
+	bt.Insert(item(8))
+	bt.Insert(item(9))
 
-	if btree.Get(item(7)) != nil {
-		t.Fatalf("expected is nil, actual is %v", btree.Get(item(7)))
+	if bt.Get(item(7)) != nil {
+		t.Fatalf("expected is nil, actual is %v", bt.Get(item(7)))
 	}
 }
 
 func TestGet(t *testing.T) {
-	btree := New(2)
-	btree.Insert(item(1))
-	btree.Insert(item(2))
-	btree.Insert(item(3))
-	btree.Insert(item(4))
-	btree.Insert(item(5))
-	btree.Insert(item(8))
-	btree.Insert(item(9))
+	bt := btree.New(2)
+	bt.Insert(item(1))
+	bt.Insert(item(2))
+	bt.Insert(item(3))
+	bt.Insert(item(4))
+	bt.Insert(item(5))
+	bt.Insert(item(8))
+	bt.Insert(item(9))
 
-	if btree.Get(item(8)) != item(8) {
-		t.Fatalf("expected is 5, actual is %v", btree.Get(item(7)))
+	if bt.Get(item(8)) != item(8) {
+		t.Fatalf("expected is 5, actual is %v", bt.Get(item(7)))
 	}
 }
 
 func ExampleInsert() {
-	btree := New(2)
-	btree.Insert(item(1))
-	btree.Insert(item(2))
-	btree.Insert(item(3))
-	btree.Insert(item(4))
-	btree.Insert(item(5))
-	btree.Insert(item(8))
-	btree.Insert(item(9))
+	bt := btree.New(2)
+	bt.Insert(item(1))
+	bt.Insert(item(2))
+	bt.Insert(item(3))
+	bt.Insert(item(4))
+	bt.Insert(item(5))
+	bt.Insert(item(8))
+	bt.Insert(item(9))
 
-	print(btree)
+	bt.Print(os.Stdout)
 	// Output: 2--4
 	//     1    3    5--8--9
+}
+
+func ExampleDelete() {
+	bt := btree.New(2)
+	bt.Insert(item(1))
+	bt.Insert(item(2))
+	bt.Insert(item(3))
+	bt.Insert(item(4))
+	bt.Insert(item(5))
+	bt.Insert(item(8))
+	bt.Insert(item(9))
+
+	bt.Delete(item(5))
+	bt.Print(os.Stdout)
+	// Output: 2--4
+	//     1    3    8--9
 }
