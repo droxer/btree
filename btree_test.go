@@ -2,7 +2,6 @@ package btree_test
 
 import (
 	"github.com/droxer/btree"
-	"io"
 	"os"
 	"testing"
 )
