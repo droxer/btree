@@ -27,13 +27,18 @@ func (s items) find(item Item) (index int, found bool) {
 	return i, false
 }
 
-func (s *items) insertAt(i int, item Item) {
+func (s *items) insertAt(index int, item Item) {
 	*s = append(*s, nil)
 
-	if i < len(*s) {
-		copy((*s)[i+1:], (*s)[i:])
+	if index < len(*s) {
+		copy((*s)[index+1:], (*s)[index:])
 	}
-	(*s)[i] = item
+	(*s)[index] = item
+}
+
+func (s *items) removeAt(index int) {
+	copy((*s)[index:], (*s)[index+1:])
+	*s = (*s)[:len(*s)-1]
 }
 
 type children []*node
@@ -107,6 +112,18 @@ func (n *node) insert(item Item) {
 	n.children[i].insert(item)
 }
 
+func (n *node) deleteItem(item Item) bool {
+	i, found := n.items.find(item)
+
+	if found {
+		if len(n.children) == 0 {
+			n.items.removeAt(i)
+			return true
+		}
+	}
+	return false
+}
+
 type BTree struct {
 	degree int
 	root   *node
@@ -176,7 +193,11 @@ func (b *BTree) Get(key Item) Item {
 }
 
 func (b *BTree) Delete(key Item) bool {
-	return false
+	if b.root == nil {
+		return false
+	}
+
+	return b.root.deleteItem(key)
 }
 
 func (b *BTree) Print(w io.Writer) {

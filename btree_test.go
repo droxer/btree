@@ -57,18 +57,24 @@ func ExampleInsert() {
 	//     1    3    5--8--9
 }
 
-func ExampleDelete() {
+func ExampleDeleteLeaf() {
 	bt := btree.New(2)
 	bt.Insert(item(1))
 	bt.Insert(item(2))
 	bt.Insert(item(3))
-	bt.Insert(item(4))
-	bt.Insert(item(5))
-	bt.Insert(item(8))
-	bt.Insert(item(9))
 
-	bt.Delete(item(5))
+	bt.Delete(item(2))
 	bt.Print(os.Stdout)
-	// Output: 2--4
-	//     1    3    8--9
+	// Output: 1--3
+}
+
+func ExampleDeleteNode() {
+	bt := btree.New(2)
+	bt.Insert(item(1))
+	bt.Insert(item(2))
+	bt.Insert(item(3))
+
+	bt.Delete(item(2))
+	bt.Print(os.Stdout)
+	// Output: 1--3
 }
