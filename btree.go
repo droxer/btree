@@ -120,8 +120,13 @@ func (n *node) deleteItem(item Item) bool {
 			n.items.removeAt(i)
 			return true
 		}
+
+		n.items[i] = n.children[i+1].items[0]
+		n.children[i+1].items.removeAt(0)
+		return true
 	}
-	return false
+
+	return n.children[i].deleteItem(item)
 }
 
 type BTree struct {
@@ -205,18 +210,8 @@ func (b *BTree) Print(w io.Writer) {
 }
 
 func (n *node) print(w io.Writer, level int) {
-	var items []string
-	for _, v := range n.items {
-		items = append(items, fmt.Sprintf("%v", v))
-	}
-
-	fmt.Fprintf(w, "%s%s", strings.Repeat(" ", 4), strings.Join(items, "--"))
-
-	if len(n.children) > 0 {
-		fmt.Fprintln(w)
-		level++
-		for _, v := range n.children {
-			v.print(w, level)
-		}
+	fmt.Fprintf(w, "%sNODE:%v\n", strings.Repeat("  ", level), n.items)
+	for _, c := range n.children {
+		c.print(w, level+1)
 	}
 }
