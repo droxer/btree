@@ -118,15 +118,25 @@ func (n *node) deleteItem(item Item) bool {
 	if found {
 		if len(n.children) == 0 {
 			n.items.removeAt(i)
-			return true
+
+			if len(n.items) > n.t.min() {
+				return true
+			}
+
+		} else {
+			n.items[i] = n.children[i+1].items[0]
+			n.children[i+1].items.removeAt(0)
 		}
 
-		n.items[i] = n.children[i+1].items[0]
-		n.children[i+1].items.removeAt(0)
+		n.rebalance(i, item)
 		return true
 	}
 
 	return n.children[i].deleteItem(item)
+}
+
+func (n *node) rebalance(index int, item Item) {
+
 }
 
 type BTree struct {
