@@ -9,7 +9,7 @@ import (
 
 // Item represents a single object in the tree.
 type Item interface {
-	Less(other Item) bool
+	Less(other Item)     bool
 }
 
 type items []Item
@@ -132,92 +132,6 @@ func (n *node) insert(item Item) {
 	n.children[i].insert(item)
 }
 
-type BTree struct {
-	degree int
-	root   *node
-}
-
-func New(degree int) *BTree {
-	if degree <= 1 {
-		panic("invalid degree")
-	}
-
-	return &BTree{
-		degree: degree,
-	}
-}
-
-func (b *BTree) newNode() *node {
-	return &node{
-		t: b,
-	}
-}
-
-func (b *BTree) min() int {
-	return b.degree - 1
-}
-
-func (b *BTree) max() int {
-	return b.degree*2 - 1
-}
-
-func (n *node) get(key Item) Item {
-	i, found := n.items.find(key)
-	if found {
-		return n.items[i]
-	} else if len(n.children) > 0 {
-		return n.children[i].get(key)
-	}
-	return nil
-}
-
-func (b *BTree) Insert(item Item) bool {
-	if item == nil {
-		panic("it not allowed to add nil item.")
-	}
-
-	if b.root == nil {
-		b.root = b.newNode()
-		b.root.items = append(b.root.items, item)
-		return true
-	} else if len(b.root.items) >= b.max() {
-		newItem, second := b.root.split(b.max() / 2)
-		oldRoot := b.root
-		b.root = b.newNode()
-		b.root.items = append(b.root.items, newItem)
-		b.root.children = append(b.root.children, oldRoot, second)
-	}
-
-	b.root.insert(item)
-	return true
-}
-
-func (b *BTree) Get(key Item) Item {
-	if b.root == nil {
-		return nil
-	}
-
-	return b.root.get(key)
-}
-
-func (b *BTree) Delete(key Item) Item {
-	return b.deleteItem(key)
-}
-
-func (b *BTree) deleteItem(key Item) Item {
-	if b.root == nil || len(b.root.items) == 0 {
-		return nil
-	}
-
-	out := b.root.remove(key)
-
-	if len(b.root.children) == 0 && len(b.root.items) == 0 {
-		b.root = b.root.children[0]
-	}
-
-	return out
-}
-
 func (n *node) remove(key Item) Item {
 	i, found := n.items.find(key)
 
@@ -275,6 +189,92 @@ func (n *node) growAndRemove(i int, item Item) Item {
 	}
 
 	return child.remove(item)
+}
+
+type BTree struct {
+	degree int
+	root   *node
+}
+
+func New(degree int) *BTree {
+	if degree <= 1 {
+		panic("invalid degree")
+	}
+
+	return &BTree{
+		degree: degree,
+	}
+}
+
+func (b *BTree) newNode() *node {
+	return &node{
+		t: b,
+	}
+}
+
+func (b *BTree) min() int {
+	return b.degree - 1
+}
+
+func (b *BTree) max() int {
+	return b.degree*2 - 1
+}
+
+func (n *node) get(key Item) Item {
+	i, found := n.items.find(key)
+	if found {
+		return n.items[i]
+	} else if len(n.children) > 0 {
+		return n.children[i].get(key)
+	}
+	return nil
+}
+
+func (b *BTree) deleteItem(key Item) Item {
+	if b.root == nil || len(b.root.items) == 0 {
+		return nil
+	}
+
+	out := b.root.remove(key)
+
+	if len(b.root.children) == 0 && len(b.root.items) == 0 {
+		b.root = b.root.children[0]
+	}
+
+	return out
+}
+
+func (b *BTree) Insert(item Item) bool {
+	if item == nil {
+		panic("it not allowed to add nil item.")
+	}
+
+	if b.root == nil {
+		b.root = b.newNode()
+		b.root.items = append(b.root.items, item)
+		return true
+	} else if len(b.root.items) >= b.max() {
+		newItem, second := b.root.split(b.max() / 2)
+		oldRoot := b.root
+		b.root = b.newNode()
+		b.root.items = append(b.root.items, newItem)
+		b.root.children = append(b.root.children, oldRoot, second)
+	}
+
+	b.root.insert(item)
+	return true
+}
+
+func (b *BTree) Get(key Item) Item {
+	if b.root == nil {
+		return nil
+	}
+
+	return b.root.get(key)
+}
+
+func (b *BTree) Delete(key Item) Item {
+	return b.deleteItem(key)
 }
 
 func (b *BTree) Print(w io.Writer) {
