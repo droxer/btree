@@ -9,7 +9,6 @@ import (
 
 // Item represents a single object in the tree.
 type Item interface {
-	// check wether the current item is less then given param
 	Less(other Item) bool
 }
 
@@ -36,9 +35,17 @@ func (s *items) insertAt(index int, item Item) {
 	(*s)[index] = item
 }
 
-func (s *items) removeAt(index int) {
+func (s *items) removeAt(index int) Item {
+	out := (*s)[index]
 	copy((*s)[index:], (*s)[index+1:])
 	*s = (*s)[:len(*s)-1]
+	return out
+}
+
+func (s *items) pop() (out Item) {
+	last := len(*s) - 1
+	out, *s = (*s)[last], (*s)[:last]
+	return
 }
 
 type children []*node
@@ -50,6 +57,19 @@ func (s *children) insertAt(i int, n *node) {
 		copy((*s)[i+1:], (*s)[i:])
 	}
 	(*s)[i] = n
+}
+
+func (s *children) removeAt(i int) *node {
+	out := (*s)[i]
+	copy((*s)[i:], (*s)[i+1:])
+	(*s) = (*s)[:len(*s)-1]
+	return out
+}
+
+func (s *children) pop() (out *node) {
+	last := len(*s) - 1
+	out, *s = (*s)[last], (*s)[:last]
+	return
 }
 
 // node represents single node in BTree.
@@ -110,33 +130,6 @@ func (n *node) insert(item Item) {
 	}
 
 	n.children[i].insert(item)
-}
-
-func (n *node) deleteItem(item Item) bool {
-	i, found := n.items.find(item)
-
-	if found {
-		if len(n.children) == 0 {
-			n.items.removeAt(i)
-
-			if len(n.items) > n.t.min() {
-				return true
-			}
-
-		} else {
-			n.items[i] = n.children[i+1].items[0]
-			n.children[i+1].items.removeAt(0)
-		}
-
-		n.rebalance(i, item)
-		return true
-	}
-
-	return n.children[i].deleteItem(item)
-}
-
-func (n *node) rebalance(index int, item Item) {
-
 }
 
 type BTree struct {
@@ -207,12 +200,81 @@ func (b *BTree) Get(key Item) Item {
 	return b.root.get(key)
 }
 
-func (b *BTree) Delete(key Item) bool {
-	if b.root == nil {
-		return false
+func (b *BTree) Delete(key Item) Item {
+	return b.deleteItem(key)
+}
+
+func (b *BTree) deleteItem(key Item) Item {
+	if b.root == nil || len(b.root.items) == 0 {
+		return nil
 	}
 
-	return b.root.deleteItem(key)
+	out := b.root.remove(key)
+
+	if len(b.root.children) == 0 && len(b.root.items) == 0 {
+		b.root = b.root.children[0]
+	}
+
+	return out
+}
+
+func (n *node) remove(key Item) Item {
+	i, found := n.items.find(key)
+
+	if len(n.children) == 0 {
+		if found {
+			return n.items.removeAt(i)
+		}
+		return nil
+	}
+
+	child := n.children[i]
+	if len(child.items) <= n.t.min() {
+		n.growAndRemove(i, key)
+	}
+
+	if found {
+		return n.items[i]
+	}
+
+	return n.children[i].remove(key)
+}
+
+func (n *node) growAndRemove(i int, item Item) Item {
+	child := n.children[i]
+
+	if len(n.items) > i && len(n.children[i+1].items) > n.t.min() {
+		sep := n.items[i]
+		right := n.children[i+1]
+
+		child.items = append(child.items, sep)
+		n.items[i] = right.items.removeAt(0)
+
+		if len(n.children[i+1].children) > 0 {
+			child.children = append(child.children, right.children.removeAt(0))
+		}
+
+	} else if i > 0 && len(n.children[i-1].items) > n.t.min() {
+		sep := n.items[i-1]
+		left := n.children[i-1]
+
+		child.items.insertAt(0, sep)
+		n.items[i-1] = left.items.pop()
+
+		if len(n.children[i-1].children) > 0 {
+			child.children.insertAt(0, left.children.pop())
+		}
+
+	} else {
+		sep := n.items.removeAt(i)
+		right := n.children.removeAt(i + 1)
+
+		child.items = append(child.items, sep)
+		child.items = append(child.items, right.items...)
+		child.children = append(child.children, right.children...)
+	}
+
+	return child.remove(item)
 }
 
 func (b *BTree) Print(w io.Writer) {
