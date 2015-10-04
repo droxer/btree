@@ -1,4 +1,4 @@
-default: deps test cover
+default: deps test cover benchmark
 
 deps:
 	go get -d -v ./...
@@ -12,5 +12,8 @@ test:
 
 cover:
 	go test ./... --cover
+
+benchmark:
+	go test ./... -bench .
 
 .PHONY: deps test cover fmt
