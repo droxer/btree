@@ -9,7 +9,7 @@ import (
 
 // Item represents a single object in the tree.
 type Item interface {
-	Less(other Item)     bool
+	Less(other Item) bool
 }
 
 type items []Item
