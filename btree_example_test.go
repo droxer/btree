@@ -49,17 +49,15 @@ func ExampleInsert() {
 
 	bt.Insert(item(19))
 	bt.Insert(item(21))
-	// bt.Print(os.Stdout)
-	// // Output: NODE:[18]
-	// //   NODE:[6]
-	// //     NODE:[4]
-	// //     NODE:[8]
-	// //   NODE:[22 26]
-	// //     NODE:[19 20]
-	// //     NODE:[24]
-	// //     NODE:[28 30]
-
-	// bt.Insert(item(21))
+	bt.Print(os.Stdout)
+	// Output: NODE:[18]
+	//   NODE:[6]
+	//     NODE:[4]
+	//     NODE:[8]
+	//   NODE:[22 26]
+	//     NODE:[19 20 21]
+	//     NODE:[24]
+	//     NODE:[28 30]
 }
 
 func ExampleDelete() {
