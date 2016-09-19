@@ -62,30 +62,6 @@ func benchmarkInsert(size int, b *testing.B) {
     }
 }
 
-func benchmarkDelete(size int, b *testing.B) {
-    b.StopTimer()
-    insert := perm(size)
-    remove := perm(size)
-    b.StartTimer()
-
-    i := 0
-    for i < b.N {
-        b.StopTimer()
-        tr := btree.New(3)
-        for _, v := range insert {
-            tr.Insert(v)
-        }
-        b.StartTimer()
-        for _, v := range remove {
-            tr.Delete(v)
-            i++
-            if i >= b.N {
-                return
-            }
-        }
-    }
-}
-
 func benchmarkGet(size int, b *testing.B) {
     b.StopTimer()
     insert := perm(size)

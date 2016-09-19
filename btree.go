@@ -14,7 +14,7 @@ type Item interface {
 
 type items []Item
 
-func (s items) find(item Item) (index int, found bool) {
+func (s items) find(item Item) (int, bool) {
 	i := sort.Search(len(s), func(i int) bool {
 		return item.Less(s[i])
 	})
